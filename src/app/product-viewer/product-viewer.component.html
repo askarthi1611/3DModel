@@ -29,6 +29,11 @@
         </div>
         <div class="col-12 col-lg-4">
             <div *ngIf="meshParts.length>0" class="card p-3">
+                <div style="width: 100%;text-align: right;margin-bottom: 10px;">
+                    <button class="btn btn-danger mt-3" (click)="resetAll()">
+                        Reset All
+                    </button>
+                </div>
                 <div class="rotate-toggle">
                     <label class="form-check form-switch">
                         <input class="form-check-input" type="checkbox" [(ngModel)]="autoRotate"
@@ -49,12 +54,16 @@
                     <div class="speed-value">Speed: {{ autoRotateSpeed }}</div>
                 </div>
 
-                <h5 class="card-title">Customize Parts</h5>
-                <div *ngFor="let part of meshParts" class="d-flex align-items-center justify-content-between my-2">
-                    <img *ngIf="part.preview" [src]="part.preview" width="40" height="40" class="me-2 rounded border" />
-                    <div class="me-2">{{part.name}}</div>
-                    <input type="color" [style.background]="part.color" class="form-control form-control-color w-auto"
-                        [(ngModel)]="part.color" (change)="updatePartColor(part)" />
+                <div class="partslist">
+                    <h5 class="card-title">Customize Parts</h5>
+                    <div *ngFor="let part of meshParts" class="d-flex align-items-center justify-content-between my-2">
+                        <img *ngIf="part.preview" [src]="part.preview" width="40" height="40"
+                            class="me-2 rounded border" />
+                        <div class="me-2">{{part.name}}</div>
+                        <input type="color" [style.background]="part.color"
+                            class="form-control form-control-color w-auto" [(ngModel)]="part.color"
+                            (change)="updatePartColor(part)" />
+                    </div>
                 </div>
             </div>
             <div *ngIf="meshParts.length===0" class="card p-3">
@@ -78,4 +87,10 @@
         <button class="btn-apply" (click)="applyColor()">Apply</button>
         <button class="btn-reset" (click)="resetPart(selectedPart)">Reset</button>
     </div>
+</div>
+
+<!-- Loader overlay -->
+<div *ngIf="isLoading" class="loader-overlay">
+    <div class="spinner"></div>
+    <p>Loading 3D model...</p>
 </div>

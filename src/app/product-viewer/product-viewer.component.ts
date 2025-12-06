@@ -34,6 +34,7 @@ export class ProductViewerComponent implements AfterViewInit {
 
   // default path to the model in assets (you can remove to force upload)
   defaultModelPath = '/assets/models/Front End 3d file.glb';
+  isLoading: boolean = false;
 
   constructor() { }
 
@@ -102,12 +103,12 @@ export class ProductViewerComponent implements AfterViewInit {
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
     this.controls.enableDamping = true;
     this.controls.screenSpacePanning = false;
-this.controls = new OrbitControls(this.camera, this.renderer.domElement);
-this.controls.enableDamping = true;
+    this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+    this.controls.enableDamping = true;
 
-this.controls.autoRotate = this.autoRotate;
-this.controls.autoRotateSpeed = this.autoRotateSpeed;
-this.controls.screenSpacePanning = false;
+    this.controls.autoRotate = this.autoRotate;
+    this.controls.autoRotateSpeed = this.autoRotateSpeed;
+    this.controls.screenSpacePanning = false;
 
     window.addEventListener('resize', this.onWindowResize.bind(this));
 
@@ -153,6 +154,9 @@ this.controls.screenSpacePanning = false;
   }
 
   loadModel(url: string) {
+    // Show loader
+    this.isLoading = true;
+
     const loader = new GLTFLoader();
     loader.load(url, (gltf) => {
       // remove previous model
@@ -169,12 +173,14 @@ this.controls.screenSpacePanning = false;
       // extract mesh parts
       this.extractMeshParts();
       // this.loadPartsPreviews();
-      console.log('this.meshParts::', this.meshParts);
       this.modelLoaded = true;
       this.animate();
+      this.isLoading = false;
+
     }, (xhr) => {
       // progress
     }, (err) => {
+      this.isLoading = false;
       console.error('Error loading model', err);
       alert('Failed to load model. Check console for details.');
     });
@@ -211,19 +217,19 @@ this.controls.screenSpacePanning = false;
 
 
   // start render loop
-animate = () => {
-  requestAnimationFrame(this.animate);
+  animate = () => {
+    requestAnimationFrame(this.animate);
 
-  if (this.controls) {
-    this.controls.autoRotate = this.autoRotate;
-    this.controls.autoRotateSpeed = this.autoRotateSpeed;
-    this.controls.update();
-  }
+    if (this.controls) {
+      this.controls.autoRotate = this.autoRotate;
+      this.controls.autoRotateSpeed = this.autoRotateSpeed;
+      this.controls.update();
+    }
 
-  if (this.renderer && this.camera) {
-    this.renderer.render(this.scene, this.camera);
-  }
-};
+    if (this.renderer && this.camera) {
+      this.renderer.render(this.scene, this.camera);
+    }
+  };
 
 
   defaultColors: Map<string, string> = new Map();
@@ -286,52 +292,88 @@ animate = () => {
   resetAllParts() {
     this.meshParts.forEach(p => this.resetPart(p));
   }
-popupX: number = 0;
-popupY: number = 0;
+  popupX: number = 0;
+  popupY: number = 0;
 
-onCanvasClick(event: MouseEvent) {
-  if (!this.renderer || !this.camera || !this.model) return;
+  onCanvasClick(event: MouseEvent) {
+    if (!this.renderer || !this.camera || !this.model) return;
 
-  const bounds = this.renderer.domElement.getBoundingClientRect();
-  this.popupX = event.clientX - bounds.left + 10;
-  this.popupY = event.clientY - bounds.top + 10;
+    const bounds = this.renderer.domElement.getBoundingClientRect();
+    this.popupX = event.clientX - bounds.left + 10;
+    this.popupY = event.clientY - bounds.top + 10;
 
-  this.mouse.x = ((event.clientX - bounds.left) / bounds.width) * 2 - 1;
-  this.mouse.y = -((event.clientY - bounds.top) / bounds.height) * 2 + 1;
+    this.mouse.x = ((event.clientX - bounds.left) / bounds.width) * 2 - 1;
+    this.mouse.y = -((event.clientY - bounds.top) / bounds.height) * 2 + 1;
 
-  this.raycaster.setFromCamera(this.mouse, this.camera);
+    this.raycaster.setFromCamera(this.mouse, this.camera);
 
-  const intersects = this.raycaster.intersectObjects(this.model.children, true);
+    const intersects = this.raycaster.intersectObjects(this.model.children, true);
 
-  if (intersects.length > 0) {
-    const mesh = intersects[0].object as THREE.Mesh;
-    this.selectedPart = this.meshParts.find(p => p.mesh === mesh) || null;
-  } else {
+    if (intersects.length > 0) {
+      const mesh = intersects[0].object as THREE.Mesh;
+      this.selectedPart = this.meshParts.find(p => p.mesh === mesh) || null;
+    } else {
+      this.selectedPart = null;
+    }
+  }
+  toggleAutoRotate() {
+    this.autoRotate = !this.autoRotate;
+  }
+  onRotateToggle() {
+    // DO NOT toggle it again
+    // autoRotate = !autoRotate ❌ REMOVE
+
+    // Just update OrbitControls
+    this.controls.autoRotate = this.autoRotate;
+    this.controls.autoRotateSpeed = this.autoRotateSpeed;
+  }
+
+  autoRotate: boolean = false;
+  autoRotateSpeed: number = 1.0; // default speed
+
+  applyColor() {
+    if (this.selectedPart) {
+      this.updatePartColor(this.selectedPart);
+    }
+
+    // Close popup after applying
     this.selectedPart = null;
   }
-}
-toggleAutoRotate() {
-  this.autoRotate = !this.autoRotate;
-}
-onRotateToggle() {
-  // DO NOT toggle it again
-  // autoRotate = !autoRotate ❌ REMOVE
+  resetAll() {
 
-  // Just update OrbitControls
-  this.controls.autoRotate = this.autoRotate;
-  this.controls.autoRotateSpeed = this.autoRotateSpeed;
-}
+    // 1️⃣ Reset Camera & Controls
+    if (this.controls) {
+      this.controls.reset();       // resets zoom, rotate, pan
+      this.controls.update();
+    }
 
-autoRotate: boolean = false;
-autoRotateSpeed: number = 1.0; // default speed
+    if (this.camera && this.model) {
+      // refit camera to model
+      this.fitCameraToObject(this.camera, this.model, 1.2);
+    }
 
-applyColor() {
-  if (this.selectedPart) {
-    this.updatePartColor(this.selectedPart);
+    // 2️⃣ Reset Auto Rotation
+    this.autoRotate = false;
+    this.autoRotateSpeed = 1.0;
+    if (this.controls) {
+      this.controls.autoRotate = false;
+    }
+
+    // 3️⃣ Reset Colors for all parts
+    this.meshParts.forEach((part: any) => {
+      const defaultColor = this.defaultColors.get(part.name) || '#cccccc';
+      part.color = defaultColor;
+
+      if (part.mesh?.material) {
+        part.mesh.material.color.set(defaultColor);
+        part.mesh.material.needsUpdate = true;
+      }
+    });
+
+    // 4️⃣ Clear selected popup
+    this.selectedPart = null;
+
+    console.log("🔄 All settings have been reset.");
   }
-
-  // Close popup after applying
-  this.selectedPart = null;
-}
 
 }
