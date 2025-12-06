@@ -1,0 +1,50 @@
+<!-- Upload Screen -->
+<div *ngIf="!modelLoaded" class="upload-fullscreen d-flex flex-column justify-content-center align-items-center">
+  <div class="upload-card shadow-lg p-4 rounded text-center" (drop)="onDrop($event)" (dragover)="onDragOver($event)">
+    <h2 class="fw-bold mb-3">Upload Your 3D Model</h2>
+    <p class="text-muted mb-4">Supported: .glb, .gltf</p>
+
+    <div class="upload-dropzone mb-3 p-4 rounded">
+      <p class="mb-0">Drag & Drop 3D model here</p>
+    </div>
+
+    <label class="btn btn-primary btn-lg px-5">
+      Choose File
+      <input #fileInput type="file" hidden (change)="onUploadModel($event)" />
+    </label>
+
+    <div class="mt-3 text-muted small">Or load default demo model</div>
+    <button class="btn btn-outline-secondary mt-2" (click)="loadDemoModel()">Load demo model</button>
+  </div>
+</div>
+
+<!-- 3D Viewer -->
+<div *ngIf="modelLoaded" class="container-fluid py-3">
+  <div class="row">
+    <div class="col-12 col-lg-8 mb-3">
+      <div #canvas class="viewer border rounded shadow-sm"></div>
+    </div>
+
+    <div class="col-12 col-lg-4">
+      <div *ngIf="meshParts.length > 0" class="card p-3">
+        <h5 class="card-title">Customize Parts</h5>
+        <div *ngFor="let part of meshParts" class="d-flex align-items-center justify-content-between my-2">
+          <img *ngIf="part.preview" [src]="part.preview" width="40" height="40" class="me-2 rounded border" />
+          <div class="me-2 flex-grow-1">{{part.name}}</div>
+          <input type="color" class="form-control form-control-color w-auto" [(ngModel)]="part.color" (change)="updatePartColor(part)" />
+        </div>
+      </div>
+
+      <div *ngIf="meshParts.length === 0" class="card p-3">
+        <div class="text-muted">No mesh parts detected. Try a different GLB or assign names in Blender.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Selected Part Popup -->
+<div *ngIf="selectedPart" class="color-picker-popup">
+  <h6>Customize {{selectedPart.name}}</h6>
+  <input type="color" [(ngModel)]="selectedPart.color" (change)="updatePartColor(selectedPart)" />
+  <button class="btn btn-sm btn-outline-secondary mt-2" (click)="resetPart(selectedPart)">Reset</button>
+</div>
