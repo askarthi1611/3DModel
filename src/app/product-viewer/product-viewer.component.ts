@@ -310,11 +310,28 @@ onCanvasClick(event: MouseEvent) {
     this.selectedPart = null;
   }
 }
+toggleAutoRotate() {
+  this.autoRotate = !this.autoRotate;
+}
+onRotateToggle() {
+  // DO NOT toggle it again
+  // autoRotate = !autoRotate ❌ REMOVE
+
+  // Just update OrbitControls
+  this.controls.autoRotate = this.autoRotate;
+  this.controls.autoRotateSpeed = this.autoRotateSpeed;
+}
 
 autoRotate: boolean = false;
 autoRotateSpeed: number = 1.0; // default speed
-toggleAutoRotate() {
-  this.autoRotate = !this.autoRotate;
+
+applyColor() {
+  if (this.selectedPart) {
+    this.updatePartColor(this.selectedPart);
+  }
+
+  // Close popup after applying
+  this.selectedPart = null;
 }
 
 }

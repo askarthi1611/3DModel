@@ -29,13 +29,24 @@
         </div>
         <div class="col-12 col-lg-4">
             <div *ngIf="meshParts.length>0" class="card p-3">
-                <button class="btn btn-primary mt-2" (click)="toggleAutoRotate()">
-                    <i class="bi" [ngClass]="autoRotate ? 'bi-pause' : 'bi-play'"></i>
-                    {{ autoRotate ? 'Stop' : 'Rotate' }}
-                </button>
-                <div *ngIf="autoRotate" class="mt-2">
+                <div class="rotate-toggle">
+                    <label class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" [(ngModel)]="autoRotate"
+                            (change)="onRotateToggle()">
+
+                        <span class="form-check-label">
+                            <i class="bi" [ngClass]="autoRotate ? 'bi-play-circle-fill' : 'bi-pause-circle'"></i>
+                            {{ autoRotate ? 'Auto Rotate ON' : 'Auto Rotate OFF' }}
+                        </span>
+                    </label>
+                </div>
+                <div *ngIf="autoRotate" class="speed-slider mt-3">
                     <label class="form-label">Rotation Speed</label>
-                    <input type="range" min="0.1" max="5" step="0.1" [(ngModel)]="autoRotateSpeed">
+
+                    <input type="range" class="form-range custom-range" min="0.1" max="5" step="0.1"
+                        [(ngModel)]="autoRotateSpeed">
+
+                    <div class="speed-value">Speed: {{ autoRotateSpeed }}</div>
                 </div>
 
                 <h5 class="card-title">Customize Parts</h5>
@@ -54,22 +65,17 @@
     </div>
 </div>
 
-<div *ngIf="selectedPart"
-     class="color-picker-popup"
-     [ngStyle]="{'left.px': popupX, 'top.px': popupY}">
-    
+<div *ngIf="selectedPart" class="color-picker-popup" [ngStyle]="{'left.px': popupX, 'top.px': popupY}">
+
     <div class="picker-header">
         <span>🎨 Customize {{selectedPart.name}}</span>
         <button class="close-btn" (click)="selectedPart = null">✕</button>
     </div>
 
-    <input type="color"
-           class="color-wheel"
-           [(ngModel)]="selectedPart.color"
-           (change)="updatePartColor(selectedPart)" />
+    <input type="color" class="color-wheel" [(ngModel)]="selectedPart.color" (change)="updatePartColor(selectedPart)" />
 
     <div class="picker-actions">
-        <button class="btn-apply" (click)="updatePartColor(selectedPart)">Apply</button>
+        <button class="btn-apply" (click)="applyColor()">Apply</button>
         <button class="btn-reset" (click)="resetPart(selectedPart)">Reset</button>
     </div>
 </div>
