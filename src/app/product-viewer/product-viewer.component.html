@@ -1,96 +1,352 @@
-<!-- Full page upload (shown when modelLoaded is false) -->
-<div *ngIf="!modelLoaded" class="upload-fullscreen d-flex flex-column justify-content-center align-items-center">
-    <div class="upload-card shadow-lg p-4 rounded text-center" (drop)="onDrop($event)" (dragover)="onDragOver($event)">
-        <h2 class="fw-bold mb-3">Upload Your 3D Model</h2>
-        <p class="text-muted mb-4">Supported: .glb, .gltf</p>
+<!-- ============================
+     HEADER / NAVBAR
+============================ -->
+<header class="app-header" *ngIf="!modelLoaded" [class.scrolled]="isScrolled">
+    <div class="container d-flex align-items-center justify-content-between">
 
-        <div class="upload-dropzone mb-3 p-4 rounded">
-            <p class="mb-0">Drag & Drop 3D model here</p>
+        <!-- LOGO -->
+        <div class="logo fw-bold">
+            <span class="grad">3D Viewer</span>
         </div>
 
-        <label class="btn btn-primary btn-lg px-5">
-            Choose File
-            <input #fileInput type="file" hidden (change)="onUploadModel($event)" />
-        </label>
-
-        <div class="mt-3 text-muted small">Or load default demo model</div>
-        <button class="btn btn-outline-secondary mt-2" (click)="loadDemoModel()">
-            Load demo model
+        <!-- HAMBURGER (Mobile) -->
+        <button class="nav-toggle d-md-none" (click)="toggleMobileNav()">
+            <span [class.open]="mobileNavOpen"></span>
         </button>
 
+        <!-- NAV LINKS -->
+        <nav class="nav-menu" [class.open]="mobileNavOpen">
+
+            <a href="#hero" (click)="closeMobileNav()">Home</a>
+            <a href="#uploadSection" (click)="closeMobileNav()">Upload</a>
+            <a href="#howToUse" (click)="closeMobileNav()">How It Works</a>
+            <a href="#features" (click)="closeMobileNav()">Features</a>
+            <a href="#contact" (click)="closeMobileNav()">Contact</a>
+            <a href="#faq" (click)="closeMobileNav()">FAQ</a>
+
+            <!-- Highlighted Button -->
+            <a href="#uploadSection" class="btn btn-primary ms-md-3 mt-3 mt-md-0" (click)="closeMobileNav()">
+                Start Now
+            </a>
+        </nav>
+
     </div>
-</div>
+</header>
 
-<!-- Viewer + controls -->
-<div *ngIf="modelLoaded" class="container-fluid py-3">
-    <div class="row">
-        <div class="col-12 col-lg-8 mb-3">
-            <div #canvas class="viewer border rounded shadow-sm"></div>
+
+<!-- ======================================================
+   HERO / INTRO — FULL SCREEN
+====================================================== -->
+<section *ngIf="!modelLoaded" id="hero"
+    class="hero-section d-flex align-items-center justify-content-center text-center">
+    <div class="container">
+
+        <!-- Lottie animation placeholder -->
+        <!-- <ng-lottie [options]="lottieOpts"></ng-lottie> -->
+        <!-- <div class="hero-lottie mb-4">
+            <div class="logo-container" (click)="openUrl('https://ask3dmodel.onrender.com/')">
+                <div class="logo1">ask3dmodel</div>
+            </div>
+        </div> -->
+
+        <h1 class="fw-bold display-4 mb-3 text-gradient">3D Product Viewer & Customizer</h1>
+
+        <p class="lead text-light mb-4 px-2 px-md-5">
+            A powerful, <strong>100% FREE</strong> tool to upload GLB models, customize part colors in real-time,
+            and export your personalized 3D product instantly.
+        </p>
+
+        <a href="#uploadSection" class="btn btn-light btn-lg px-4 shadow-lg">
+            <i class="fas fa-play me-2"></i> Get Started
+        </a>
+
+    </div>
+</section>
+
+
+<!-- ======================================================
+   UPLOAD SECTION — FULL SCREEN
+====================================================== -->
+<section *ngIf="!modelLoaded" id="uploadSection"
+    class="upload-fullscreen d-flex flex-column justify-content-center align-items-center text-center">
+
+    <div class="container">
+
+        <h2 class="fw-bold mb-4">Upload Your 3D Model</h2>
+        <p class="mb-4 text-muted">Instant preview · Auto part detection · Fully customizable</p>
+
+        <div class="upload-card shadow-lg p-4 p-md-5 rounded">
+
+            <!-- DRAG ZONE -->
+            <div class="upload-dropzone mb-3 p-5 rounded" (drop)="onDrop($event)" (dragover)="onDragOver($event)">
+                <p class="mb-0 fs-5">📦 Drag & Drop your 3D model here</p>
+            </div>
+
+            <p class="text-muted small mb-3">Supported formats: <strong>.glb</strong>, <strong>.gltf</strong></p>
+
+            <!-- FILE BUTTON -->
+            <label class="btn btn-primary btn-lg px-5 upload-btn">
+                Choose File
+                <input #fileInput type="file" hidden (change)="onUploadModel($event)" />
+            </label>
+
+            <div class="mt-3 text-muted">or load our FREE demo model</div>
+
+            <button class="btn btn-outline-secondary mt-2" (click)="loadDemoModel()">
+                Load Demo Model
+            </button>
+
         </div>
-        <div class="col-12 col-lg-4">
-            <div *ngIf="meshParts.length>0" class="card p-3">
-                <div style="width: 100%;text-align: right;margin-bottom: 10px;">
-                    <button class="btn btn-danger mt-3" (click)="resetAll()">
-                        Reset All
+
+    </div>
+</section>
+
+
+<!-- ======================================================
+   HOW TO USE — FULL SCREEN
+====================================================== -->
+<section *ngIf="!modelLoaded" id="howItWorks" class="how-to-use-section py-5 bg-light">
+  <div class="container text-center">
+    <h2 class="fw-bold mb-4">How It Works</h2>
+    <p class="text-muted mb-5">Simple steps · No account needed · Completely FREE</p>
+
+    <div class="row g-4">
+      <div class="col-md-4" *ngFor="let step of steps">
+        <div class="step-card p-4 rounded-4 shadow-sm h-100 text-center">
+          <div class="step-icon mb-3">
+            <i [ngClass]="step.icon"></i>
+          </div>
+          <h4 class="fw-bold mb-2">{{step.title}}</h4>
+          <p class="text-muted">{{step.description}}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ======================================================
+   FEATURES — FULL SCREEN
+====================================================== -->
+<section *ngIf="!modelLoaded" id="features" class="features-section py-5 bg-light">
+    <div class="container">
+
+        <h2 class="fw-bold text-center mb-5">Amazing Features</h2>
+
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-4" *ngFor="let f of feat">
+                <div class="feature-card p-4 rounded-4 shadow-sm h-100 text-center">
+                    <div class="icon-circle mb-3">
+                        <i [ngClass]="f.icon"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2">{{f.title}}</h5>
+                    <p class="text-muted">{{f.txt}}</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<section id="faq" *ngIf="!modelLoaded" class="faq-section py-5 bg-light">
+    <div class="container">
+        <h2 class="fw-bold text-center mb-5">Frequently Asked Questions</h2>
+
+        <div class="accordion" id="faqAccordion">
+            <div class="accordion-item" *ngFor="let q of faqs; let i = index">
+                <h2 class="accordion-header" id="heading{{i}}">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                        [attr.data-bs-target]="'#collapse' + i" [attr.aria-expanded]="i === 0 ? 'true' : 'false'"
+                        [attr.aria-controls]="'collapse' + i">
+                        <i [ngClass]="q.icon" class="me-2"></i> {{q.question}}
                     </button>
-                </div>
-                <div class="rotate-toggle">
-                    <label class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" [(ngModel)]="autoRotate"
-                            (change)="onRotateToggle()">
-
-                        <span class="form-check-label">
-                            <i class="bi" [ngClass]="autoRotate ? 'bi-play-circle-fill' : 'bi-pause-circle'"></i>
-                            {{ autoRotate ? 'Auto Rotate ON' : 'Auto Rotate OFF' }}
-                        </span>
-                    </label>
-                </div>
-                <div *ngIf="autoRotate" class="speed-slider mt-3">
-                    <label class="form-label">Rotation Speed</label>
-
-                    <input type="range" class="form-range custom-range" min="0.1" max="5" step="0.1"
-                        [(ngModel)]="autoRotateSpeed">
-
-                    <div class="speed-value">Speed: {{ autoRotateSpeed }}</div>
-                </div>
-
-                <div class="partslist">
-                    <h5 class="card-title">Customize Parts</h5>
-                    <div *ngFor="let part of meshParts" class="d-flex align-items-center justify-content-between my-2">
-                        <img *ngIf="part.preview" [src]="part.preview" width="40" height="40"
-                            class="me-2 rounded border" />
-                        <div class="me-2">{{part.name}}</div>
-                        <input type="color" [style.background]="part.color"
-                            class="form-control form-control-color w-auto" [(ngModel)]="part.color"
-                            (change)="updatePartColor(part)" />
+                </h2>
+                <div [id]="'collapse' + i" class="accordion-collapse collapse" [class.show]="i === 0"
+                    [attr.aria-labelledby]="'heading' + i" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body">
+                        {{q.answer}}
                     </div>
                 </div>
             </div>
-            <div *ngIf="meshParts.length===0" class="card p-3">
-                <div class="text-muted">No mesh parts detected. Try uploading a different GLB or open the model in
-                    Blender and assign names.</div>
-            </div>
         </div>
     </div>
+</section>
+
+
+
+<!-- CONTACT SECTION -->
+<section id="contact" *ngIf="!modelLoaded" class="contact section bg-light py-5">
+    <div class="container text-center">
+        <h2 class="fw-bold mb-4">Get in Touch</h2>
+        <p class="mb-4 text-muted">Have questions or feedback? We'd love to hear from you!</p>
+
+
+        <div class="d-flex justify-content-center flex-wrap gap-3 mb-4">
+            <a href="mailto:askarthi1611@gmail.com" class="btn btn-outline-primary">
+                <i class="fas fa-envelope"></i> Email
+            </a>
+            <a href="https://wa.me/917708550202" target="_blank" class="btn btn-outline-success">
+                <i class="fab fa-whatsapp"></i> WhatsApp
+            </a>
+            <a href="tel:+917708550202" class="btn btn-outline-secondary">
+                <i class="fas fa-phone"></i> Call
+            </a>
+            <a href="https://www.linkedin.com/in/karthikeyan-s-123456789" target="_blank" class="btn btn-outline-info">
+                <i class="fab fa-linkedin"></i> LinkedIn
+            </a>
+            <a href="https://www.facebook.com/karthikeyan.s" target="_blank" class="btn btn-outline-primary">
+                <i class="fab fa-facebook"></i> Facebook
+            </a>
+        </div>
+
+        <p class="mb-4"><i class="fas fa-map-marker-alt"></i> Sivakasi, Tamil Nadu, India</p>
+
+        <div class="map-responsive">
+            <iframe
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3917.123456789!2d77.574456!3d9.451234!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3b0411abcd1234%3A0x56789abcdef!2sSivakasi%2C%20Tamil%20Nadu%2C%20India!5e0!3m2!1sen!2sin!4v1700000000000"
+                width="100%" height="300" style="border:0;" allowfullscreen="" loading="lazy"
+                referrerpolicy="no-referrer-when-downgrade"></iframe>
+        </div>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer *ngIf="!modelLoaded" class="app-footer bg-dark text-light py-4">
+    <div class="container text-center">
+        <p class="mb-2">&copy; 2025 3D Viewer & Customizer. All rights reserved.</p>
+        <p class="mb-2">
+            Built with ❤️ by
+            <a href="https://askarthi.onrender.com/" target="_blank"
+                class="text-light text-decoration-underline">Karthikeyan S</a>
+        </p>
+        <div class="d-flex justify-content-center gap-3">
+            <a href="mailto:askarthi1611@gmail.com" class="text-light"><i class="fas fa-envelope"></i></a>
+            <a href="https://wa.me/917708550202" target="_blank" class="text-light"><i class="fab fa-whatsapp"></i></a>
+            <a href="tel:+917708550202" class="text-light"><i class="fas fa-phone"></i></a>
+            <a href="https://www.linkedin.com/in/karthikeyan-s-123456789" target="_blank" class="text-light"><i
+                    class="fab fa-linkedin"></i></a>
+            <a href="https://www.facebook.com/karthikeyan.s" target="_blank" class="text-light"><i
+                    class="fab fa-facebook"></i></a>
+        </div>
+
+    </div>
+</footer>
+
+
+<!-- ======================================================
+   PRODUCT VIEWER SECTION — FULL SCREEN
+====================================================== -->
+<!-- <section *ngIf="modelLoaded" class="product-viewer-section d-flex flex-column">
+    <app-product-viewer-toolbar
+      (exportModel)="exportModel()"
+      (resetColors)="resetColors()"
+      (autoRotateToggle)="toggleAutoRotate()"
+      [isAutoRotating]="isAutoRotating"
+      [isLoading]="isLoading"
+    ></app-product-viewer-toolbar>
+</section> -->
+
+
+<!-- Viewer + controls -->
+<div *ngIf="modelLoaded" class="container-fluid py-3">
+  <div class="row">
+    <!-- 3D Canvas -->
+    <div class="col-12 col-lg-8 mb-3 position-relative">
+      <div #canvas class="viewer border rounded shadow-sm"></div>
+      <i class="fas fa-info-circle info-icon" data-bs-toggle="tooltip" data-bs-placement="top"
+         title="Click on parts in the canvas to customize their colors"></i>
+    </div>
+
+    <!-- Control Panel -->
+    <div class="col-12 col-lg-4">
+      <div *ngIf="meshParts.length>0" class="card p-3 shadow-sm">
+        <!-- Action Buttons -->
+        <div class="d-flex justify-content-end gap-2 mb-3">
+          <button class="btn btn-danger" (click)="resetAll()" data-bs-toggle="tooltip" title="Reset all parts to original colors">
+            <i class="fas fa-undo me-1"></i> Reset All
+          </button>
+          <button class="btn btn-primary" (click)="downloadModel()" data-bs-toggle="tooltip" title="Download the customized model as GLB">
+            <i class="fas fa-download me-1"></i> Download
+          </button>
+        </div>
+
+        <!-- Auto Rotate Toggle -->
+        <div class="form-check form-switch mb-3" style="display: flex;align-items: center;">
+          <input class="form-check-input" type="checkbox" [(ngModel)]="autoRotate" (change)="onRotateToggle()" id="autoRotateSwitch">
+          <label class="form-check-label" for="autoRotateSwitch" data-bs-toggle="tooltip" title="Toggle auto rotation">
+            <i [ngClass]="autoRotate ? 'fas fa-play-circle' : 'fas fa-pause-circle'"></i>
+            {{ autoRotate ? 'Auto Rotate ON' : 'Auto Rotate OFF' }}
+          </label>
+        </div>
+
+        <!-- Rotation Speed -->
+        <div *ngIf="autoRotate" class="mb-3">
+          <label class="form-label">Rotation Speed</label>
+          <input type="range" class="form-range" min="0.1" max="5" step="0.1" [(ngModel)]="autoRotateSpeed" data-bs-toggle="tooltip" title="Adjust rotation speed">
+          <div class="small text-muted">Speed: {{ autoRotateSpeed }}</div>
+        </div>
+
+        <!-- Tabs -->
+        <ul class="nav nav-tabs mb-3">
+          <li class="nav-item">
+            <a class="nav-link" [class.active]="activeTab==='parts'" (click)="changeactiveTab('parts')" data-bs-toggle="tooltip" title="Customize individual parts">Parts</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" [class.active]="activeTab==='colors'" (click)="changeactiveTab('colors')" data-bs-toggle="tooltip" title="See used colors and edit groups">Used Colors</a>
+          </li>
+        </ul>
+
+        <!-- Tab Content -->
+        <div class="fade-container">
+          <!-- Parts Tab -->
+          <div *ngIf="activeTab==='parts'">
+            <h5 class="card-title mb-3">Customize Parts</h5>
+            <div *ngFor="let part of meshParts" class="d-flex align-items-center justify-content-between my-2">
+              <img *ngIf="part.preview" [src]="part.preview" width="40" height="40" class="me-2 rounded border" />
+              <div class="me-2">{{ part.name }}</div>
+              <input type="color" class="form-control form-control-color w-auto" [(ngModel)]="part.color" [style.background]="part.color" (change)="updatePartColor(part)" data-bs-toggle="tooltip" title="Change color of this part"/>
+            </div>
+          </div>
+
+          <!-- Colors Tab -->
+          <div *ngIf="activeTab==='colors'">
+            <h5 class="card-title mb-3">Used Colors</h5>
+            <div *ngFor="let group of colorGroups" class="my-3">
+              <div class="d-flex align-items-center mb-2">
+                <div class="color-preview-circle me-2" [style.background]="group.value"></div>
+                <strong>{{ group.value }}</strong>
+              </div>
+              <input type="color" class="form-control form-control-color w-auto mb-2" [ngModel]="group.value" [style.background]="group.value" (input)="updateColorGroup(group.value, $event)" data-bs-toggle="tooltip" title="Change color for all parts in this group"/>
+              <div class="parts-inline-list mt-2">
+                <span *ngFor="let p of group.parts" class="part-chip">{{ p.name }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="meshParts.length===0" class="card p-3 text-muted">
+        No mesh parts detected. Try uploading a different GLB or open the model in Blender and assign names.
+      </div>
+    </div>
+  </div>
 </div>
 
+<!-- Color Picker Popup -->
 <div *ngIf="selectedPart" class="color-picker-popup" [ngStyle]="{'left.px': popupX, 'top.px': popupY}">
-
-    <div class="picker-header">
-        <span>🎨 Customize {{selectedPart.name}}</span>
-        <button class="close-btn" (click)="selectedPart = null">✕</button>
-    </div>
-
-    <input type="color" class="color-wheel" [(ngModel)]="selectedPart.color" (change)="updatePartColor(selectedPart)" />
-
-    <div class="picker-actions">
-        <button class="btn-apply" (click)="applyColor()">Apply</button>
-        <button class="btn-reset" (click)="resetPart(selectedPart)">Reset</button>
-    </div>
+  <div class="picker-header d-flex justify-content-between align-items-center">
+    <span>🎨 Customize {{selectedPart.name}}</span>
+    <button class="close-btn btn btn-sm btn-outline-secondary" (click)="selectedPart=null" data-bs-toggle="tooltip" title="Close color picker">✕</button>
+  </div>
+  <input type="color" class="color-wheel w-100 my-2" [(ngModel)]="selectedPart.color" (change)="updatePartColor(selectedPart)" data-bs-toggle="tooltip" title="Pick a color"/>
+  <div class="picker-actions d-flex justify-content-between">
+    <button class="btn btn-primary btn-sm" (click)="applyColor()" data-bs-toggle="tooltip" title="Apply selected color">Apply</button>
+    <button class="btn btn-danger btn-sm" (click)="resetPart(selectedPart)" data-bs-toggle="tooltip" title="Reset this part to original color">Reset</button>
+  </div>
 </div>
 
-<!-- Loader overlay -->
+<!-- Loader Overlay -->
 <div *ngIf="isLoading" class="loader-overlay">
-    <div class="spinner"></div>
-    <p>Loading 3D model...</p>
+  <div class="spinner"></div>
+  <p>Loading 3D model...</p>
 </div>
